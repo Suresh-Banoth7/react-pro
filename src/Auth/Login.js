@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { validateEmail } from "../Utils/utils"
+import axios from "axios"
 const Login = () => {
 
 
@@ -21,34 +22,43 @@ const Login = () => {
         setPword(e.target.value)
     }
 
-    const handleBtn = () => {
+    const handleBtn = async () => {
+        let isError = false
 
-        var isError = false;
-
-
-
+        // Validate email
         if (validateEmail(email)) {
-            setEmailEr(" ")
+            setEmailEr("")
         } else {
             setEmailEr("Invalid Email")
             isError = true
         }
 
+        // Validate password
         if (pword.length >= 8) {
-            setPwordEr(" ")
+            setPwordEr("")
         } else {
-            setPwordEr("min 8 characters required")
+            setPwordEr("Min 8 characters required")
             isError = true
         }
 
-
         if (!isError) {
-            console.log("call api")
+            try {
+                const response = await axios.post("http://localhost:8080/api/auth/login", {
+                    email: email,
+                    password: pword
+                })
+
+                console.log("✅ Login successful:", response.data)
+                alert("Login successful")
+                // optionally redirect: window.location.href = "/dashboard"
+            } catch (error) {
+                console.error(" Login failed:", error.response?.data || error.message)
+                alert(error.response?.data || "Login failed")
+            }
         } else {
-            console.log("Api call failed")
+            console.log("⚠️ Validation failed")
         }
     }
-
 
 
     return (
